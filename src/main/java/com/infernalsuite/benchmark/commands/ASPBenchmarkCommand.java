@@ -1,11 +1,18 @@
 package com.infernalsuite.benchmark.commands;
 
 import java.io.File;
+import java.io.IOException;
 
+import com.infernalsuite.asp.api.AdvancedSlimePaperAPI;
+import com.infernalsuite.asp.api.exceptions.CorruptedWorldException;
+import com.infernalsuite.asp.api.exceptions.NewerFormatException;
+import com.infernalsuite.asp.api.exceptions.UnknownWorldException;
 import com.infernalsuite.asp.api.loaders.SlimeLoader;
+import com.infernalsuite.asp.api.world.SlimeWorld;
+import com.infernalsuite.asp.api.world.SlimeWorldInstance;
+import com.infernalsuite.asp.api.world.properties.SlimePropertyMap;
 import com.infernalsuite.asp.loaders.file.FileLoader;
 import com.infernalsuite.benchmark.ASPBenchmark;
-import com.infernalsuite.benchmark.ASPBenchmarkLoader;
 import com.infernalsuite.benchmark.commands.exception.MessageCommandException;
 import com.infernalsuite.benchmark.commands.sub.DeserializeCommand;
 import com.infernalsuite.benchmark.commands.sub.LoadCommand;
@@ -43,7 +50,7 @@ public class ASPBenchmarkCommand {
         if (commandManager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
             commandManager.registerBrigadier();
         } else {
-            ASPBenchmarkLoader.LOGGER.warning("Brigadier is not supported on this server version!");
+            ASPBenchmark.LOGGER.warning("Brigadier is not supported on this server version!");
         }
 
         commandManager.exceptionController().registerHandler(TypeToken.get(CommandExecutionException.class), ExceptionHandler.unwrappingHandler());
@@ -84,7 +91,7 @@ public class ASPBenchmarkCommand {
 
         AnnotationParser<CommandSender> parser = new AnnotationParser<>(commandManager, CommandSender.class);
         parser.parse(this,
-                new SerializeCommand(),
+                new SerializeCommand(this),
                 new DeserializeCommand(this),
                 new LoadCommand(this));
     }
@@ -94,6 +101,19 @@ public class ASPBenchmarkCommand {
         source.sendMessage(PREFIX.append(Component.text("This is the main command for ASPBenchmark! ").color(NamedTextColor.GRAY)
                 .append(Component.text("/aspbenchmark help").color(NamedTextColor.YELLOW))
                 .append(Component.text(" to see all available commands!")).color(NamedTextColor.GRAY)));
+    }
+
+    public SlimeWorldInstance loadWorldIfNull(String worldName) {
+        SlimeWorldInstance loadedWorld = AdvancedSlimePaperAPI.instance().getLoadedWorld(worldName);
+        if (loadedWorld == null) {
+            try {
+                SlimeWorld newLoadedWorld = AdvancedSlimePaperAPI.instance().readWorld(fileLoader, worldName, true, new SlimePropertyMap());
+                loadedWorld = AdvancedSlimePaperAPI.instance().loadWorld(newLoadedWorld, true);
+            } catch (UnknownWorldException | IOException | CorruptedWorldException | NewerFormatException e) {
+                throw new MessageCommandException(ASPBenchmarkCommand.PREFIX.append(Component.text("Failed to load world: " + e.getMessage()).color(NamedTextColor.RED)));
+            }
+        }
+        return loadedWorld;
     }
 
     public SlimeLoader getFileLoader() {

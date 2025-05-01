@@ -14,6 +14,7 @@ import com.infernalsuite.benchmark.commands.ASPBenchmarkCommand;
 import com.infernalsuite.benchmark.commands.exception.MessageCommandException;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
@@ -28,7 +29,7 @@ public class LoadCommand {
 
     @Command("aspbenchmark|aspb|swmb load <world>")
     public void loadWorld(CommandSender source, @Argument("world") String worldName) {
-        if (AdvancedSlimePaperAPI.instance().getLoadedWorld(worldName) != null) {
+        if (Bukkit.getWorld(worldName) != null) {
             throw new MessageCommandException(ASPBenchmarkCommand.PREFIX.append(Component.text("World is already loaded!").color(NamedTextColor.RED)));
         }
         SlimeLoader loader = manager.getFileLoader();

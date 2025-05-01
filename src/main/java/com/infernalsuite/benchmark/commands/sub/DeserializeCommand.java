@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.infernalsuite.asp.api.AdvancedSlimePaperAPI;
 import com.infernalsuite.asp.api.exceptions.CorruptedWorldException;
 import com.infernalsuite.asp.api.exceptions.NewerFormatException;
+import com.infernalsuite.asp.api.exceptions.UnknownWorldException;
 import com.infernalsuite.asp.api.loaders.SlimeSerializationAdapter;
 import com.infernalsuite.asp.api.world.SlimeWorld;
 import com.infernalsuite.asp.api.world.SlimeWorldInstance;
@@ -30,10 +31,8 @@ public class DeserializeCommand {
     @Command("aspbenchmark|aspb|swmb deserialize <world> <iterations>")
     public void deserializeWorld(CommandSender source, @Argument("world") String worldName,
                                  @Argument(value = "iterations") int iterations) {
-        SlimeWorldInstance loadedWorld = AdvancedSlimePaperAPI.instance().getLoadedWorld(worldName);
-        if (loadedWorld == null) {
-            throw new MessageCommandException(ASPBenchmarkCommand.PREFIX.append(Component.text("World is not loaded!").color(NamedTextColor.RED)));
-        }
+        SlimeWorldInstance loadedWorld = manager.loadWorldIfNull(worldName);
+
         SlimeWorld slimeWorld = loadedWorld.getSerializableCopy();
         SlimePropertyMap propertyMap = slimeWorld.getPropertyMap();
 
@@ -45,8 +44,6 @@ public class DeserializeCommand {
         long totalTime = 0;
         for (int i = 0; i < iterations; i++) {
             try {
-                System.gc(); // force garbage collection to clear memory
-
                 // we're going to use nano time for better precision
                 long startTime = System.nanoTime();
                 SlimeWorld deserializedWorld = serializer.deserializeWorld(slimeWorld.getName() + "_bench",
