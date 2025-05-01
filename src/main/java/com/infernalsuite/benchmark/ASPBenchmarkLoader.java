@@ -2,9 +2,8 @@ package com.infernalsuite.benchmark;
 
 import java.util.logging.Logger;
 
+import com.infernalsuite.benchmark.commands.ASPBenchmarkCommand;
 import com.infernalsuite.benchmark.service.Service;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
-import org.incendo.cloud.paper.PaperCommandManager;
 
 public class ASPBenchmarkLoader implements Service {
 
@@ -18,11 +17,12 @@ public class ASPBenchmarkLoader implements Service {
 
     @Override
     public void load() {
-
+        LOGGER.info("Loading ASPBenchmark...");
+        new ASPBenchmarkCommand(plugin);
     }
 
     @Override
     public void unload() {
-        Service.super.unload();
+        LOGGER.info("Unloading ASPBenchmark...");
     }
 }

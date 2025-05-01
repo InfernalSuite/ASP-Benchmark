@@ -11,15 +11,8 @@ version = "1.0.0-SNAPSHOT"
 repositories {
     mavenCentral()
 
-    maven {
-        name = "papermc"
-        url = uri("https://repo.papermc.io/repository/maven-public/")
-    }
-
-    maven {
-        name = "is-releases"
-        url = uri("https://repo.infernalsuite.com/repository/maven-releases/")
-    }
+    maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
+    maven { url = uri("https://repo.infernalsuite.com/repository/maven-snapshots/") }
 }
 
 dependencies {
@@ -34,7 +27,7 @@ tasks.withType<ProcessResources> {
     // Define the encoding for resource files
     filteringCharset = "UTF-8"
 
-    filesMatching("plugin.yml") {
+    filesMatching("paper-plugin.yml") {
         // Enable property expansion for plugin.yml
         expand(project.properties) // Expands properties like 'version'
     }
