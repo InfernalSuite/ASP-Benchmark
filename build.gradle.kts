@@ -21,6 +21,7 @@ dependencies {
 
     implementation("org.incendo:cloud-annotations:2.0.0")
     implementation("org.incendo:cloud-paper:2.0.0-beta.10") // command framework
+    implementation("com.infernalsuite.asp:file-loader:4.0.0-SNAPSHOT")
 }
 
 tasks.withType<ProcessResources> {

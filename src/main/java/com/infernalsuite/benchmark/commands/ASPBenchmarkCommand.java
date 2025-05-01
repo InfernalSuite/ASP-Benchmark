@@ -1,8 +1,13 @@
 package com.infernalsuite.benchmark.commands;
 
+import java.io.File;
+
+import com.infernalsuite.asp.api.loaders.SlimeLoader;
+import com.infernalsuite.asp.loaders.file.FileLoader;
 import com.infernalsuite.benchmark.ASPBenchmark;
 import com.infernalsuite.benchmark.ASPBenchmarkLoader;
 import com.infernalsuite.benchmark.commands.exception.MessageCommandException;
+import com.infernalsuite.benchmark.commands.sub.DeserializeCommand;
 import com.infernalsuite.benchmark.commands.sub.SerializeCommand;
 import io.leangen.geantyref.TypeToken;
 import net.kyori.adventure.text.Component;
@@ -23,10 +28,11 @@ import org.incendo.cloud.paper.LegacyPaperCommandManager;
 
 public class ASPBenchmarkCommand {
 
-    public static final TextComponent PREFIX = LegacyComponentSerializer.legacySection().deserialize("" +
-            "§9§lASPBenchmark §7§l>> §r");
+    public static final TextComponent PREFIX = LegacyComponentSerializer.legacySection().deserialize("§9§lASPBenchmark §7§l>> §r");
+    private final SlimeLoader fileLoader;
 
     public ASPBenchmarkCommand(ASPBenchmark plugin) {
+        this.fileLoader = new FileLoader(new File(plugin.getDataFolder(), "slime_worlds"));
 
         LegacyPaperCommandManager<CommandSender> commandManager = LegacyPaperCommandManager.createNative(
                 plugin,
@@ -77,13 +83,18 @@ public class ASPBenchmarkCommand {
 
         AnnotationParser<CommandSender> parser = new AnnotationParser<>(commandManager, CommandSender.class);
         parser.parse(this,
-                new SerializeCommand());
+                new SerializeCommand(),
+                new DeserializeCommand(this));
     }
 
-    @Command("aspbenchmark|aspb")
+    @Command("aspbenchmark|aspb|swmb")
     public void onCommand(CommandSender source) {
         source.sendMessage(PREFIX.append(Component.text("This is the main command for ASPBenchmark! ").color(NamedTextColor.GRAY)
                 .append(Component.text("/aspbenchmark help").color(NamedTextColor.YELLOW))
                 .append(Component.text(" to see all available commands!")).color(NamedTextColor.GRAY)));
+    }
+
+    public SlimeLoader getFileLoader() {
+        return fileLoader;
     }
 }
