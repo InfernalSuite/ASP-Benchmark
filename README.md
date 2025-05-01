@@ -1,6 +1,6 @@
 # ASP Benchmark
 
-A Minecraft plugin for benchmarking Advanced Slime API (ASP) performance.
+A Minecraft plugin for benchmarking Advanced Slime Paper (ASP) performance.
 
 ## Overview
 
