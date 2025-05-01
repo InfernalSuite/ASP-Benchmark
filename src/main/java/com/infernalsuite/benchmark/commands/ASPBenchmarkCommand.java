@@ -103,17 +103,20 @@ public class ASPBenchmarkCommand {
                 .append(Component.text(" to see all available commands!")).color(NamedTextColor.GRAY)));
     }
 
-    public SlimeWorldInstance loadWorldIfNull(String worldName) {
+    public SlimeWorld readWorldIfNull(String worldName) {
         SlimeWorldInstance loadedWorld = AdvancedSlimePaperAPI.instance().getLoadedWorld(worldName);
-        if (loadedWorld == null) {
-            try {
-                SlimeWorld newLoadedWorld = AdvancedSlimePaperAPI.instance().readWorld(fileLoader, worldName, true, new SlimePropertyMap());
-                loadedWorld = AdvancedSlimePaperAPI.instance().loadWorld(newLoadedWorld, true);
-            } catch (UnknownWorldException | IOException | CorruptedWorldException | NewerFormatException e) {
-                throw new MessageCommandException(ASPBenchmarkCommand.PREFIX.append(Component.text("Failed to load world: " + e.getMessage()).color(NamedTextColor.RED)));
-            }
+        if (loadedWorld != null) {
+            return loadedWorld.getSerializableCopy();
         }
-        return loadedWorld;
+        try {
+            return AdvancedSlimePaperAPI.instance().readWorld(fileLoader, worldName, true, new SlimePropertyMap());
+        } catch (
+                UnknownWorldException |
+                IOException |
+                CorruptedWorldException |
+                NewerFormatException e) {
+            throw new MessageCommandException(ASPBenchmarkCommand.PREFIX.append(Component.text("Failed to load world: " + e.getMessage()).color(NamedTextColor.RED)));
+        }
     }
 
     public SlimeLoader getFileLoader() {

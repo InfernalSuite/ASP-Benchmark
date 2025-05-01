@@ -29,8 +29,10 @@ tasks.withType<ProcessResources> {
     filteringCharset = "UTF-8"
 
     filesMatching("paper-plugin.yml") {
-        // Enable property expansion for plugin.yml
-        expand(project.properties) // Expands properties like 'version'
+        // Enable property expansion
+        expand(mapOf(
+            "version" to project.version,
+        ))
     }
 }
 

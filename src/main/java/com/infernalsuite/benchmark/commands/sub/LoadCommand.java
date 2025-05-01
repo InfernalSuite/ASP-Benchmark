@@ -27,22 +27,37 @@ public class LoadCommand {
         this.manager = manager;
     }
 
-    @Command("aspbenchmark|aspb|swmb load <world>")
-    public void loadWorld(CommandSender source, @Argument("world") String worldName) {
+    @Command("aspbenchmark|aspb|swmb load <world> <iterations>")
+    public void loadWorld(CommandSender source, @Argument("world") String worldName,
+                          @Argument(value = "iterations") int iterations) {
         if (Bukkit.getWorld(worldName) != null) {
             throw new MessageCommandException(ASPBenchmarkCommand.PREFIX.append(Component.text("World is already loaded!").color(NamedTextColor.RED)));
         }
         SlimeLoader loader = manager.getFileLoader();
         try {
-            long startTime = System.nanoTime();
+            SlimeWorld readWorld = AdvancedSlimePaperAPI.instance().readWorld(loader, worldName, true, new SlimePropertyMap());
+            long totalTime = 0;
+            for (int i = 0; i < iterations; i++) {
+                long startTime = System.nanoTime();
 
-            SlimeWorld slimeWorld = AdvancedSlimePaperAPI.instance().readWorld(loader, worldName, false, new SlimePropertyMap()); // deserialize in memory
-            SlimeWorldInstance realWorld = AdvancedSlimePaperAPI.instance().loadWorld(slimeWorld, true);
+                SlimeWorldInstance loadedWorld = AdvancedSlimePaperAPI.instance().loadWorld(readWorld, true);
 
-            long endTime = System.nanoTime();
-            long timeMs = (endTime - startTime) / 1_000_000; // convert to milliseconds
+                long endTime = System.nanoTime();
+                long timeMs = (endTime - startTime) / 1_000_000; // convert to milliseconds
 
-            source.sendMessage(ASPBenchmarkCommand.PREFIX.append(Component.text("Loaded world " + worldName + " in " + timeMs + "ms!").color(NamedTextColor.GRAY)));
+                totalTime += timeMs;
+
+                source.sendMessage(ASPBenchmarkCommand.PREFIX.append(
+                        Component.text("Run " + (i + 1) + ": Loaded world in " + timeMs + "ms")
+                                 .color(NamedTextColor.GRAY)));
+
+                Bukkit.unloadWorld(loadedWorld.getBukkitWorld(), false);
+                source.sendMessage(ASPBenchmarkCommand.PREFIX.append(Component.text("Unloaded world on iteration " + (i + 1)).color(NamedTextColor.GRAY)));
+            }
+
+            long avgTime = totalTime / iterations;
+            source.sendMessage(ASPBenchmarkCommand.PREFIX.append(
+                    Component.text("Average loading time over " + iterations + " runs: " + avgTime + "ms").color(NamedTextColor.GREEN)));
         } catch (UnknownWorldException | IOException | CorruptedWorldException | NewerFormatException e) {
             throw new MessageCommandException(ASPBenchmarkCommand.PREFIX.append(Component.text("Failed to load world: " + e.getMessage()).color(NamedTextColor.RED)));
         }

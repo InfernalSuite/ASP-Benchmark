@@ -1,17 +1,9 @@
 package com.infernalsuite.benchmark.commands.sub;
 
-import java.io.IOException;
-
 import com.infernalsuite.asp.api.AdvancedSlimePaperAPI;
-import com.infernalsuite.asp.api.exceptions.CorruptedWorldException;
-import com.infernalsuite.asp.api.exceptions.NewerFormatException;
-import com.infernalsuite.asp.api.exceptions.UnknownWorldException;
 import com.infernalsuite.asp.api.loaders.SlimeSerializationAdapter;
 import com.infernalsuite.asp.api.world.SlimeWorld;
-import com.infernalsuite.asp.api.world.SlimeWorldInstance;
-import com.infernalsuite.asp.api.world.properties.SlimePropertyMap;
 import com.infernalsuite.benchmark.commands.ASPBenchmarkCommand;
-import com.infernalsuite.benchmark.commands.exception.MessageCommandException;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
@@ -31,8 +23,7 @@ public class SerializeCommand {
     @Command("aspbenchmark|aspb|swmb serialize <world> <iterations>")
     public void serializeWorld(CommandSender source, @Argument("world") String world,
                                @Argument(value = "iterations") int iterations) {
-        SlimeWorldInstance loadedWorld = manager.loadWorldIfNull(world);
-        SlimeWorld slimeWorld = loadedWorld.getSerializableCopy();
+        SlimeWorld slimeWorld = manager.readWorldIfNull(world);
 
         long totalTime = 0;
         byte[] serializedData = null;

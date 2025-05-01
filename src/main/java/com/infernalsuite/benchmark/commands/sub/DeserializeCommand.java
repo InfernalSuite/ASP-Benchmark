@@ -5,10 +5,8 @@ import java.io.IOException;
 import com.infernalsuite.asp.api.AdvancedSlimePaperAPI;
 import com.infernalsuite.asp.api.exceptions.CorruptedWorldException;
 import com.infernalsuite.asp.api.exceptions.NewerFormatException;
-import com.infernalsuite.asp.api.exceptions.UnknownWorldException;
 import com.infernalsuite.asp.api.loaders.SlimeSerializationAdapter;
 import com.infernalsuite.asp.api.world.SlimeWorld;
-import com.infernalsuite.asp.api.world.SlimeWorldInstance;
 import com.infernalsuite.asp.api.world.properties.SlimePropertyMap;
 import com.infernalsuite.benchmark.commands.ASPBenchmarkCommand;
 import com.infernalsuite.benchmark.commands.exception.MessageCommandException;
@@ -31,12 +29,10 @@ public class DeserializeCommand {
     @Command("aspbenchmark|aspb|swmb deserialize <world> <iterations>")
     public void deserializeWorld(CommandSender source, @Argument("world") String worldName,
                                  @Argument(value = "iterations") int iterations) {
-        SlimeWorldInstance loadedWorld = manager.loadWorldIfNull(worldName);
+        SlimeWorld readWorld = manager.readWorldIfNull(worldName);
+        SlimePropertyMap propertyMap = readWorld.getPropertyMap();
 
-        SlimeWorld slimeWorld = loadedWorld.getSerializableCopy();
-        SlimePropertyMap propertyMap = slimeWorld.getPropertyMap();
-
-        byte[] serializedData = serializer.serializeWorld(slimeWorld);
+        byte[] serializedData = serializer.serializeWorld(readWorld);
         source.sendMessage(ASPBenchmarkCommand.PREFIX.append(
                 Component.text("Serialized data size: " + serializedData.length / 1024 + " KB").color(NamedTextColor.GRAY)));
 
@@ -46,7 +42,7 @@ public class DeserializeCommand {
             try {
                 // we're going to use nano time for better precision
                 long startTime = System.nanoTime();
-                SlimeWorld deserializedWorld = serializer.deserializeWorld(slimeWorld.getName() + "_bench",
+                SlimeWorld deserializedWorld = serializer.deserializeWorld(readWorld.getName() + "_bench",
                         serializedData,
                         manager.getFileLoader(),
                         propertyMap,
@@ -65,10 +61,10 @@ public class DeserializeCommand {
         }
         long avgTime = totalTime / iterations;
         source.sendMessage(ASPBenchmarkCommand.PREFIX.append(
-                Component.text("Average deserialization time: " + avgTime + "ms!").color(NamedTextColor.GRAY)));
+                Component.text("Average deserialization time over " + iterations + " runs: " + avgTime + "ms").color(NamedTextColor.GREEN)));
 
         // report chunks
         source.sendMessage(ASPBenchmarkCommand.PREFIX.append(
-                Component.text("Original world had " + slimeWorld.getChunkStorage().size() + " chunks").color(NamedTextColor.GRAY)));
+                Component.text("Original world had " + readWorld.getChunkStorage().size() + " chunks").color(NamedTextColor.GRAY)));
     }
 }
