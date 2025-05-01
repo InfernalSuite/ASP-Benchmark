@@ -1,0 +1,7 @@
+name: "ASP-Benchmark"
+version: ${rootProject.version}
+main: "com.infernalsuite.benchmark.ASPBenchmark"
+authors:
+  - "renvins"
+api-version: 1.21
+description: " A utility plugin to compare the performance of ASP builds. "
