@@ -8,6 +8,7 @@ import com.infernalsuite.benchmark.ASPBenchmark;
 import com.infernalsuite.benchmark.ASPBenchmarkLoader;
 import com.infernalsuite.benchmark.commands.exception.MessageCommandException;
 import com.infernalsuite.benchmark.commands.sub.DeserializeCommand;
+import com.infernalsuite.benchmark.commands.sub.LoadCommand;
 import com.infernalsuite.benchmark.commands.sub.SerializeCommand;
 import io.leangen.geantyref.TypeToken;
 import net.kyori.adventure.text.Component;
@@ -32,7 +33,7 @@ public class ASPBenchmarkCommand {
     private final SlimeLoader fileLoader;
 
     public ASPBenchmarkCommand(ASPBenchmark plugin) {
-        this.fileLoader = new FileLoader(new File(plugin.getDataFolder(), "slime_worlds"));
+        this.fileLoader = new FileLoader(new File("slime_worlds"));
 
         LegacyPaperCommandManager<CommandSender> commandManager = LegacyPaperCommandManager.createNative(
                 plugin,
@@ -84,7 +85,8 @@ public class ASPBenchmarkCommand {
         AnnotationParser<CommandSender> parser = new AnnotationParser<>(commandManager, CommandSender.class);
         parser.parse(this,
                 new SerializeCommand(),
-                new DeserializeCommand(this));
+                new DeserializeCommand(this),
+                new LoadCommand(this));
     }
 
     @Command("aspbenchmark|aspb|swmb")
